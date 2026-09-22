@@ -1,0 +1,16 @@
+{
+    "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
+    "name": "bsa-dw-toolkit",
+    "description": "BSA toolkit for the GLS Auto Data Warehouse team — requirements writer and backlog grooming skills for Claude Code.",
+    "owner": {
+          "name": "GLS Auto Data Warehouse"
+    },
+    "plugins": [
+          {
+                  "name": "bsa-dw-toolkit",
+                  "description": "Skills for writing structured requirements docs and evaluating Jira stories for backlog readiness. Covers ETL, reporting, and file transfer story types.",
+                  "source": "./",
+                  "category": "productivity"
+          }
+    ]
+}
