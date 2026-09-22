@@ -1,0 +1,8 @@
+{
+  "name": "bsa-dw-toolkit",
+  "version": "0.1.0",
+  "description": "BSA toolkit for the GLS Auto Data Warehouse team — write Jira-ready requirements and evaluate stories for backlog grooming.",
+  "author": {
+    "name": "GLS Auto Data Warehouse"
+  }
+}
