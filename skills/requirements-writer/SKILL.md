@@ -79,7 +79,7 @@ List the specific functional changes needed to achieve the future state. Write e
 - Group related requirements under a bold sub-header if there are more than ~6 items (e.g., **Data Layer**, **ETL / Orchestration**, **Reporting**)
 
 **Example groupings for reference:**
-- **Data Layer** — Snowflake table/view/schema changes
+- **Data Layer** — what data must be captured or changed in Snowflake, described by business need and grain only (see "The Data Layer Is Always the Engineering Team's Decision" below — no object names)
 - **ETL / Orchestration** — Prefect flow logic, scheduling, dependencies
 - **Reporting** — Power BI changes, new measures/visuals, filter updates
 - **Data Transfer** — File ingestion, API connections, external system syncs
@@ -114,39 +114,27 @@ Write as many criteria as needed to fully cover the requirements. Each criterion
 
 ---
 
-## When to Specify the Data Layer vs. Leave It to Engineers
+## The Data Layer Is Always the Engineering Team's Decision
 
-This is an important judgment call. Use the following as a guide:
+**Never propose, suggest, or invent names for databases, schemas, tables, views, columns, or stored procedures.** Physical design belongs to the engineering team, without exception. This applies to every story type: ingestion, parsing, history, file transfer, ETL, Prefect flows, reporting, and analytics.
 
-**Prescribe the data layer when the structure is the requirement itself.** If the story is about ingesting a new data source, parsing a file, maintaining history, or transferring data between systems, the table design, schema placement, and storage strategy are business requirements — not architectural choices. In these cases, specify:
-- Target schema and table name (or suggest one)
-- Table type (e.g., Type 2 SCD for history, staging table, raw vs. curated layer)
-- Key fields, grain, and any business rules on how data should be stored
-- Retention or archival requirements if applicable
+Do **not** write requirements that specify:
+- Database, schema, table, view, or stored procedure names (not even as a suggestion, example, or "something like...")
+- Column or field names for objects that do not exist yet
+- Table type or modeling approach (Type 2 SCD, staging vs. curated, raw layer placement, materialization strategy)
+- Indexing, clustering, partitioning, warehouse sizing, or any other physical implementation detail
 
-**Do not prescribe the data layer for reporting and analytics stories.** If the story is primarily about a Power BI report, dashboard, or analytical output, the engineers should decide how to build the underlying data layer to support it. In these cases:
-- Focus requirements on the report itself: measures, visuals, slicers, filters, page layout, refresh behavior
-- Describe what data the report needs to display and how it should behave, not how Snowflake should be structured to support it
-- Do not include requirements for views, tables, or models unless the user explicitly calls one out
+Instead, describe the business need and let engineering decide how to build it:
+- What data must be captured, and at what grain (one row per payment, per account per day, etc.)
+- Whether history must be preserved, and what kind (point-in-time snapshots, full change history, current state only)
+- What the data must support downstream (which reports, flows, or consumers depend on it)
+- Business rules on the data itself: required values, valid ranges, deduplication logic, late-arriving data handling
+- Retention or archival requirements, expressed in business terms (retain 7 years, purge after 90 days)
+- Refresh timing and latency expectations (daily by 6 AM ET, near real time, etc.)
 
-**For ETL / Prefect flow stories**, apply judgment based on scope:
-- If the flow is orchestrating existing data (transformations, flags, aggregations), focus on the logic and scheduling — leave the implementation to engineers
-- If the flow is bringing in net-new data that doesn't exist in the warehouse yet, specify the target storage requirements
+**Referencing existing objects is fine.** If a story touches an object that already exists in the warehouse, name it exactly as it exists. The restriction is on inventing names for things that have not been built yet, not on pointing to what is already there.
 
----
-
-## Object & Field Naming
-
-When the user has not specified an exact Snowflake table, view, column, field, Prefect flow name, or Power BI measure/report name, **suggest a reasonable name** based on context and common naming conventions for the domain. Use snake_case for Snowflake objects and Prefect flows, and Title Case for Power BI measures and report names.
-
-Examples:
-- Column for a payment compliance flag → `monthly_min_payment_flag`
-- Prefect flow for daily dealer sync → `dealer_payment_compliance_daily`
-- Power BI measure for flagged account count → `Flagged Accounts - Current Month`
-
-Suggested names should be presented as-is in the document — the user will edit them before pasting into Jira if needed. Do not add disclaimers like "you may want to rename this."
-
----
+**If naming feels unavoidable**, that is a signal the requirement is under-specified. Restate it as a business need and, if the ambiguity is material, flag it in the Notes for Review section for the engineering team to resolve.
 
 ## Assumptions & Open Questions (End of Document)
 
